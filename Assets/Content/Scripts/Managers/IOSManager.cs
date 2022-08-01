@@ -29,7 +29,12 @@ public class IOSManager : Singleton<IOSManager>
                 {
                     steps += sample.numberOfSteps;
                 }
+                UIManager.Instance.pedometerText.text = steps.ToString();
+                UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
+                steps = 0;
                 //this.resultsLabel.text = string.Format("{0}", steps);
+
+
             });
             //buttonLabel.text = "Stop reading";
             reading = true;
@@ -38,6 +43,7 @@ public class IOSManager : Singleton<IOSManager>
         {
             this.healthStore.StopReadingPedometerData();
             //buttonLabel.text = "Start reading";
+            UIManager.Instance.pedometerTextButtonText.text = "Start Pedometer";
             reading = false;
         }
     }
