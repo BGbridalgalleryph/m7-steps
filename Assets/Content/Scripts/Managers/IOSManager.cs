@@ -21,6 +21,8 @@ public class IOSManager : Singleton<IOSManager>
     {
         DateTimeOffset start = DateTimeOffset.UtcNow;
 
+        UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
+
         if (!reading)
         {
             int steps = 0;
@@ -30,7 +32,6 @@ public class IOSManager : Singleton<IOSManager>
                     steps += sample.numberOfSteps;
                 }
                 UIManager.Instance.pedometerText.text = steps.ToString();
-                UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
                 steps = 0;
                 //this.resultsLabel.text = string.Format("{0}", steps);
 
