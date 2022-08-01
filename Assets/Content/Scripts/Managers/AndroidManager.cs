@@ -43,32 +43,32 @@ public class AndroidManager : Singleton<AndroidManager>
                 Permission.RequestUserPermission("android.permission.ACTIVITY_RECOGNITION");
             }
         }
-        //if(Application.platform != RuntimePlatform.WindowsEditor)
-        //{
-        //    InputSystem.EnableDevice(StepCounter.current);
-        //}
+        if (Application.platform != RuntimePlatform.WindowsEditor)
+        {
+            InputSystem.EnableDevice(StepCounter.current);
+        }
 
     }
     private void Update()
     {
-        //try
-        //{
-        //    if (StepCounter.current.enabled)
-        //    {
-        //        StepCounter.current.samplingFrequency = 1;
-        //        var stepValue = StepCounter.current.stepCounter.ReadValue();
-        //        //stepsValue += stepValue;
-        //        //stepText.text = stepValue.ToString();
-        //    }
-        //    else
-        //    {
-        //        //stepText.text = "not enabled";
-        //    }
-        //}
-        //catch (Exception e)
-        //{
-        //    //stepText.text = $"error: {e.Message}";
-        //}
+        try
+        {
+            if (StepCounter.current.enabled)
+            {
+                StepCounter.current.samplingFrequency = 1;
+                var stepValue = StepCounter.current.stepCounter.ReadValue();
+                //stepsValue += stepValue;
+                //stepText.text = stepValue.ToString();
+            }
+            else
+            {
+                //stepText.text = "not enabled";
+            }
+        }
+        catch (Exception e)
+        {
+            //stepText.text = $"error: {e.Message}";
+        }
     }
     private void OnStep(int steps, double distance)
     {
