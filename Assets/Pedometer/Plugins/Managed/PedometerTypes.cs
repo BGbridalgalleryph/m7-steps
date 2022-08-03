@@ -3,6 +3,8 @@
 *   Copyright (c) 2018 Yusuf Olokoba
 */
 
+using System;
+
 namespace PedometerU {
 
     /// <summary>

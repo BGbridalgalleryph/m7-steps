@@ -11,7 +11,7 @@ public class LongClickHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     #region Public Variables
     public float holdTime = 2.0f;
     public Image fillImage;
-    public UnityEvent onLockClick;
+    public UnityEvent onLongClickEvent;
     #endregion
 
     #region Private Variables
@@ -35,7 +35,17 @@ public class LongClickHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     private void Update()
     {
-        
+        if(pointerDown)
+        {
+            pointerDownTimer += Time.deltaTime;
+            if(pointerDownTimer > holdTime)
+            {
+                if(onLongClickEvent != null)
+                    onLongClickEvent.Invoke();
+                Reset();
+            }
+            fillImage.fillAmount = pointerDownTimer / holdTime;
+        }
     }
 
     private void Reset()

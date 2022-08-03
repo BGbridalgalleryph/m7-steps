@@ -8,6 +8,10 @@ public class IOSManager : Singleton<IOSManager>
 {
     #region Public Variables
     public HealthKitDataTypes types;
+    #region Delegate
+    public delegate void PopulateSteps(int steps, double distance);
+    public event PopulateSteps OnPopulateSteps;
+    #endregion
     #endregion
 
     #region Private Variables
@@ -21,7 +25,7 @@ public class IOSManager : Singleton<IOSManager>
     {
         DateTimeOffset start = DateTimeOffset.UtcNow;
 
-        UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
+        //UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
 
         if (!reading)
         {
@@ -31,8 +35,9 @@ public class IOSManager : Singleton<IOSManager>
                 {
                     steps += sample.numberOfSteps;
                 }
-                UIManager.Instance.pedometerText.text = steps.ToString();
+                OnPopulateSteps(steps, 0);
                 steps = 0;
+                //UIManager.Instance.pedometerText.text = steps.ToString();
                 //this.resultsLabel.text = string.Format("{0}", steps);
 
 
@@ -44,7 +49,7 @@ public class IOSManager : Singleton<IOSManager>
         {
             this.healthStore.StopReadingPedometerData();
             //buttonLabel.text = "Start reading";
-            UIManager.Instance.pedometerTextButtonText.text = "Start Pedometer";
+            //UIManager.Instance.pedometerTextButtonText.text = "Start Pedometer";
             reading = false;
         }
     }
@@ -59,5 +64,6 @@ public class IOSManager : Singleton<IOSManager>
             this.healthStore.Authorize(this.types);
         }
     }
+
     #endregion
 }

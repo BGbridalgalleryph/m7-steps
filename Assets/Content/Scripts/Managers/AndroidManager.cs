@@ -9,6 +9,10 @@ using PedometerU;
 public class AndroidManager : Singleton<AndroidManager>
 {
     #region Public Variables
+    #region Delegate
+    public delegate void PopulateSteps(int steps, double distance);
+    public event PopulateSteps OnPopulateSteps;
+    #endregion
     #endregion
 
     #region Private Variables
@@ -22,7 +26,7 @@ public class AndroidManager : Singleton<AndroidManager>
         if (!reading)
         {
             pedometer = new Pedometer(OnStep);
-            OnStep(0, 0);
+            OnStep(0, 0.00);
             reading = true;
         }
         else
@@ -72,8 +76,9 @@ public class AndroidManager : Singleton<AndroidManager>
     //}
     private void OnStep(int steps, double distance)
     {
-        UIManager.Instance.pedometerText.text = steps.ToString();
-        UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
+        OnPopulateSteps(steps, distance);
+        //UIManager.Instance.pedometerText.text = steps.ToString();
+        //UIManager.Instance.pedometerTextButtonText.text = "Stop Pedometer";
         // Display the values // Distance in feet
         //stepText.text = steps.ToString();
         //distanceText.text = (distance * 3.28084).ToString("F2") + " ft";
@@ -84,7 +89,7 @@ public class AndroidManager : Singleton<AndroidManager>
         // Release the pedometer
         pedometer?.Dispose();
         pedometer = null;
-        UIManager.Instance.pedometerTextButtonText.text = "Start Pedometer";
+        //UIManager.Instance.pedometerTextButtonText.text = "Start Pedometer";
     }
 
     private void OnDisable()
