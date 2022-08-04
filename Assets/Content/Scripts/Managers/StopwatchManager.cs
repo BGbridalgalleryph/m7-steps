@@ -6,13 +6,21 @@ using UnityEngine;
 public class StopwatchManager : Singleton<StopwatchManager>
 {
     #region Public Variables
-    [HideInInspector]
     public TimeSpan currentTime;
+    //[HideInInspector]
+    public float currentTimeFloat;
+
+    #region Delegate
+    public delegate void MinuteThreshold();
+    public event MinuteThreshold onAchievedMinuteThreshold;
+    #endregion
+
     #endregion
 
     #region Private Variables
     private bool stopWatchEnabled = false;
-    private float currentTimeFloat;
+    private float minuteThresholdHandler;
+    private int minutePassed = 1;
     #endregion
 
     #region Public Functions
@@ -28,6 +36,7 @@ public class StopwatchManager : Singleton<StopwatchManager>
 
     public void ResetStopWatch()
     {
+        minutePassed = 1;
         currentTimeFloat = 0f;
         currentTime = TimeSpan.Zero;
     }
@@ -40,8 +49,17 @@ public class StopwatchManager : Singleton<StopwatchManager>
         {
             currentTimeFloat += Time.deltaTime;
             currentTime = TimeSpan.FromSeconds(currentTimeFloat);
+            minuteThresholdHandler = currentTimeFloat;
+            if (minuteThresholdHandler > (60 * minutePassed) + 1)
+            {
+                minutePassed++;
+                onAchievedMinuteThreshold();
+                minuteThresholdHandler = 0;
+            }
         }
 
     }
+
+    //private void setTime
     #endregion
 }

@@ -25,6 +25,8 @@ public class UIManager : Singleton<UIManager>
     public Text gameplaySteps;
     public Text gameplayDistance;
     public Text gameplayTime;
+    public Text currentM7StepCoinEarnings;
+    public Text currentEnergy;
     public GameObject RunningState;
     public GameObject PauseState;
     public GameObject SummaryState;
@@ -123,6 +125,8 @@ public class UIManager : Singleton<UIManager>
         gameplaySteps.text = "0";
         gameplayDistance.text = "0";
         gameplayTime.text = "00:00";
+        currentEnergy.text = $"{GameplayManager.Instance.currentEnergy} / {GameplayManager.Instance.currentEnergy}";
+        currentM7StepCoinEarnings.text = $"+ 0.0";
         StopwatchManager.Instance.ResetStopWatch();
         SetGameplayState(0);
         PauseButton.SetActive(true);
