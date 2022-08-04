@@ -6,9 +6,11 @@ using UnityEngine;
 public class StopwatchManager : Singleton<StopwatchManager>
 {
     #region Public Variables
-    public TimeSpan currentTime;
+    public TimeSpan currentTimeSpan;
     //[HideInInspector]
-    public float currentTimeFloat;
+    public float currentTime;
+    //[HideInInspector]
+    public float currentScoringTime;
 
     #region Delegate
     public delegate void MinuteThreshold();
@@ -37,8 +39,9 @@ public class StopwatchManager : Singleton<StopwatchManager>
     public void ResetStopWatch()
     {
         minutePassed = 1;
-        currentTimeFloat = 0f;
-        currentTime = TimeSpan.Zero;
+        currentTime = 0f;
+        currentScoringTime = 0f;
+        currentTimeSpan = TimeSpan.Zero;
     }
     #endregion
 
@@ -47,9 +50,13 @@ public class StopwatchManager : Singleton<StopwatchManager>
     {
         if(stopWatchEnabled)
         {
-            currentTimeFloat += Time.deltaTime;
-            currentTime = TimeSpan.FromSeconds(currentTimeFloat);
-            minuteThresholdHandler = currentTimeFloat;
+            if(GameplayManager.Instance.continueEarningSteps)
+            {
+                currentScoringTime += Time.deltaTime;
+            }
+            currentTime += Time.deltaTime;
+            currentTimeSpan = TimeSpan.FromSeconds(currentTime);
+            minuteThresholdHandler = currentTime;
             if (minuteThresholdHandler > (60 * minutePassed) + 1)
             {
                 minutePassed++;

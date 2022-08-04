@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameplayManager : Singleton<GameplayManager>
 {
@@ -25,6 +26,16 @@ public class GameplayManager : Singleton<GameplayManager>
     /// </summary>
     public double currentEarnings;
 
+    /// <summary>
+    /// check if steps are constantly updating
+    /// </summary>
+    public float checkStepsTime = 3.0f;
+
+    /// <summary>
+    /// check if user is actually walking and if he/she is then continue earning
+    /// </summary>
+    public bool continueEarningSteps = false;
+
     [Header("User")]
     public double currentEnergy = 15;
     public float Luck = 10f;
@@ -38,6 +49,9 @@ public class GameplayManager : Singleton<GameplayManager>
     private int temporarySteps;
     private double temporaryDistance;
     private double originalEnergy;
+    private bool populatingSteps;
+    private float temporaryCheckStepsTime;
+    private int testSteps;
     #endregion
 
     #region Public Functions
@@ -49,6 +63,7 @@ public class GameplayManager : Singleton<GameplayManager>
             currentSteps = 0;
             currentDistance = 0;
             currentSteps = 0;
+            temporaryCheckStepsTime = checkStepsTime;
         }
         gameCurrentlyStarting = true;
         StopwatchManager.Instance.StartStopWatch();
@@ -59,9 +74,7 @@ public class GameplayManager : Singleton<GameplayManager>
     {
         currentSteps += temporarySteps;
         currentDistance += temporaryDistance;
-        Debug.Log("gameCurrentlyStarting: " + gameCurrentlyStarting);
         gameCurrentlyStarting = false;
-        Debug.Log("gameCurrentlyStarting: " + gameCurrentlyStarting);
         StopwatchManager.Instance.StopStopWatch();
         Pedometer();
     }
@@ -110,6 +123,7 @@ public class GameplayManager : Singleton<GameplayManager>
     private void populateStepsAndroid(int steps, double distance)
     {
         temporarySteps = steps;
+        populatingSteps = true;
         temporaryDistance = distance;
         UIManager.Instance.PopulateGameplayDetails(temporarySteps + currentSteps, temporaryDistance + currentDistance);
     }
@@ -117,6 +131,7 @@ public class GameplayManager : Singleton<GameplayManager>
     private void populateStepsIOS(int steps, double distance)
     {
         temporarySteps = steps;
+        populatingSteps = true;
         double distanceAssumption = steps * 0.71;
         temporaryDistance = distanceAssumption;
         UIManager.Instance.PopulateGameplayDetails(temporarySteps + currentSteps, temporaryDistance + currentDistance);
@@ -137,9 +152,31 @@ public class GameplayManager : Singleton<GameplayManager>
     {
         if (gameCurrentlyStarting)
         {
-            UIManager.Instance.gameplayTime.text = StopwatchManager.Instance.currentTime.ToString(@"mm\:ss");
-            UIManager.Instance.currentM7StepCoinEarnings.text = $"+ {earningsAlgorithm()}";
-            //earningsAlgorithm();
+            UIManager.Instance.gameplayTime.text = StopwatchManager.Instance.currentTimeSpan.ToString(@"mm\:ss");
+            if(continueEarningSteps)
+            {
+                UIManager.Instance.currentM7StepCoinEarnings.text = $"+ {earningsAlgorithm()}";
+            }
+
+            if (populatingSteps)
+            {
+                temporaryCheckStepsTime = checkStepsTime;
+                populatingSteps = false;
+                continueEarningSteps = true;
+            }
+
+            temporaryCheckStepsTime -= Time.deltaTime;
+            if(temporaryCheckStepsTime < 0)
+            {
+                continueEarningSteps = false;
+            }
+        }
+
+        //simulate steps
+        if(Keyboard.current[Key.Space].wasPressedThisFrame)
+        {
+            testSteps++;
+            populateStepsAndroid(testSteps, 0);
         }
     }
 
@@ -152,21 +189,21 @@ public class GameplayManager : Singleton<GameplayManager>
         double stepsEarnings = steps * stepsEarningsMultiplier;
 
         //current earnings is 0.2 coins per minute
-        double minuteEarningsEnergy = (earningsPerMinute / 60) * StopwatchManager.Instance.currentTimeFloat;
+        double minuteEarningsEnergy = (earningsPerMinute / 60) * StopwatchManager.Instance.currentScoringTime;
 
         //current luck earnings is luck * 0.1
         double luckEarnings = Luck * luckEarningsMultiplier;
 
-        currentEarnings = stepsEarnings * minuteEarningsEnergy * luckEarnings;
-        //Debug.Log("currentEarnings: " + currentEarnings + " gameCurrentlyStarting: " + gameCurrentlyStarting);
+        currentEarnings = stepsEarnings * luckEarnings + minuteEarningsEnergy;
         if(currentEarnings >= 0.01)
         {
-            return currentEarnings.ToString("#.##");
+            return string.Format("{0:0.00}", currentEarnings);
         }
         else
         {
             return "0.0";
         }
     }
+
     #endregion
 }

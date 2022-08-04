@@ -3080,7 +3080,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07bb52df3fe67c24689e32655ef292dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentTimeFloat: 0
+  currentTime: 0
+  currentScoringTime: 0
 --- !u!1 &850099978
 GameObject:
   m_ObjectHideFlags: 0
@@ -4125,9 +4126,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   earningsPerMinute: 0.2
-  stepsEarningsMultiplier: 0.1
+  stepsEarningsMultiplier: 0.0001
   luckEarningsMultiplier: 0.1
   currentEarnings: 0
+  checkStepsTime: 3
+  continueEarningSteps: 0
   currentEnergy: 5
   Luck: 10
   currentSteps: 0
