@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,16 @@ public class UIManager : Singleton<UIManager>
 
     [Header("Loading Scene UI Contents")]
     public Image splashScreenLoadingGuage;
+    public TextMeshProUGUI LoadingText;
+
+    [Header("Home Scene UI Contents")]
+    //public Text StageLevel;
+    //public Text Energy;
+    //public Text Durability;
+    public TextMeshProUGUI StageLevel;
+    public TextMeshProUGUI Energy;
+    public TextMeshProUGUI Durability;
+    public Image DurabilityGuage;
 
     [Header("Gameplay Page UI Contents")]
     public GameObject GameplayOverlay;
@@ -22,11 +33,16 @@ public class UIManager : Singleton<UIManager>
     public GameObject PauseButton;
     public GameObject SummaryContent;
     public GameObject SummaryButton;
-    public Text gameplaySteps;
-    public Text gameplayDistance;
-    public Text gameplayTime;
-    public Text currentM7StepCoinEarnings;
-    public Text currentEnergy;
+    //public Text gameplaySteps;
+    //public Text gameplayDistance;
+    //public Text gameplayTime;
+    //public Text currentM7StepCoinEarnings;
+    //public Text currentEnergy;
+    public TextMeshProUGUI gameplaySteps;
+    public TextMeshProUGUI gameplayDistance;
+    public TextMeshProUGUI gameplayTime;
+    public TextMeshProUGUI currentM7StepCoinEarnings;
+    public TextMeshProUGUI currentEnergy;
     public GameObject RunningState;
     public GameObject PauseState;
     public GameObject SummaryState;
@@ -69,6 +85,7 @@ public class UIManager : Singleton<UIManager>
     #region Page Switching Functions
     public void GotoHome()
     {
+        setupHomeDetails();
         LoadingScene.SetActive(false);
         HomePage.SetActive(true);
         GameplayPage.SetActive(false);
@@ -259,5 +276,12 @@ public class UIManager : Singleton<UIManager>
         _startGamePlayLoading = true;
     }
 
+    private void setupHomeDetails()
+    {
+        StageLevel.text = "1";
+        Energy.text = GameplayManager.Instance.currentEnergy.ToString();
+        Durability.text = "100 / 100";
+        DurabilityGuage.fillAmount = 1;
+    }
     #endregion
 }
