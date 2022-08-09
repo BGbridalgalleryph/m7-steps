@@ -21,10 +21,6 @@ public class GameplayManager : Singleton<GameplayManager>
     /// </summary>
     public float luckEarningsMultiplier = 0.1f;
 
-    /// <summary>
-    /// current earnings
-    /// </summary>
-    public double currentEarnings;
 
     /// <summary>
     /// check if steps are constantly updating
@@ -37,11 +33,29 @@ public class GameplayManager : Singleton<GameplayManager>
     public bool continueEarningSteps = false;
 
     [Header("User")]
-    public double currentEnergy = 15;
-    public float Luck = 10f;
+    /// <summary>
+    /// current user's Energy
+    /// </summary>
+    public double currentEnergy = 5.0;
+    /// <summary>
+    /// current user's Energy Cap
+    /// </summary>
+    public double currentEnergyCap = 5.0;
+
+    /// <summary>
+    /// current earnings
+    /// </summary>
+    public double currentEarnings;
+
+    /// <summary>
+    /// current daily earning cap
+    /// </summary>
+    public double currentEarningsCap;
+    [Header("User Gameplay")]
     public int currentSteps;
     public double currentDistance;
     public float currentTime;
+    public float Luck = 10f;
     #endregion
 
     #region Private Variables
@@ -52,6 +66,7 @@ public class GameplayManager : Singleton<GameplayManager>
     private bool populatingSteps;
     private float temporaryCheckStepsTime;
     private int testSteps;
+    private double oneDividedBySixty = 0.01667;
     #endregion
 
     #region Public Functions
@@ -104,7 +119,7 @@ public class GameplayManager : Singleton<GameplayManager>
         {
             IOSManager.Instance.OnPopulateSteps += populateStepsIOS;
         }
-        StopwatchManager.Instance.onAchievedMinuteThreshold += decreaseEnergy;
+        //StopwatchManager.Instance.onAchievedMinuteThreshold += decreaseEnergy;
     }
 
     private void OnDisable()
@@ -117,7 +132,7 @@ public class GameplayManager : Singleton<GameplayManager>
         {
             IOSManager.Instance.OnPopulateSteps -= populateStepsIOS;
         }
-        StopwatchManager.Instance.onAchievedMinuteThreshold -= decreaseEnergy;
+        //StopwatchManager.Instance.onAchievedMinuteThreshold -= decreaseEnergy;
     }
 
     private void populateStepsAndroid(int steps, double distance)
@@ -137,25 +152,35 @@ public class GameplayManager : Singleton<GameplayManager>
         UIManager.Instance.PopulateGameplayDetails(temporarySteps + currentSteps, temporaryDistance + currentDistance);
     }
 
-    private void decreaseEnergy()
-    {
-        currentEnergy--;
-        UIManager.Instance.currentEnergy.text = $"{currentEnergy} / {originalEnergy}";
-        if (currentEnergy <= 0)
-        {
-            StopGame();
-            UIManager.Instance.StopCurrentGame();
-        }
-    }
+    //private void decreaseEnergy()
+    //{
+    //    currentEnergy--;
+    //    UIManager.Instance.currentEnergy.text = $"{currentEnergy} / {originalEnergy}";
+    //    if (currentEnergy <= 0)
+    //    {
+    //        StopGame();
+    //        UIManager.Instance.StopCurrentGame();
+    //    }
+    //}
 
     private void Update()
     {
         if (gameCurrentlyStarting)
         {
             UIManager.Instance.gameplayTime.text = StopwatchManager.Instance.currentTimeSpan.ToString(@"mm\:ss");
-            if(continueEarningSteps)
+
+            decreaseEnergyAlgorithm();
+
+            if (continueEarningSteps)
             {
-                UIManager.Instance.currentM7StepCoinEarnings.text = $"+ {earningsAlgorithm()}";
+                if (UIManager.Instance.uiVersion == 2)
+                {
+                    UIManager.Instance.currentM7StepCoinEarnings.text = $"+ {earningsAlgorithmV2()}";
+                }
+                else
+                {
+                    UIManager.Instance.currentM7StepCoinEarnings.text = $"+ {earningsAlgorithm()}";
+                }
             }
 
             if (populatingSteps)
@@ -172,7 +197,7 @@ public class GameplayManager : Singleton<GameplayManager>
             }
         }
 
-        //simulate steps
+        //simulate steps for testing
         if(Keyboard.current[Key.Space].wasPressedThisFrame)
         {
             testSteps++;
@@ -197,11 +222,75 @@ public class GameplayManager : Singleton<GameplayManager>
         currentEarnings = stepsEarnings * luckEarnings + minuteEarningsEnergy;
         if(currentEarnings >= 0.01)
         {
+            if (currentEarnings >= currentEarningsCap)
+            {
+                currentEarnings = currentEarningsCap;
+                StopGame();
+                UIManager.Instance.StopCurrentGame();
+            }
             return string.Format("{0:0.00}", currentEarnings);
         }
         else
         {
-            return "0.0";
+            return "0.00";
+        }
+    }
+
+    private string earningsAlgorithmV2()
+    {
+        double steps = temporarySteps + currentSteps;
+        double distance = temporaryDistance + currentDistance;
+
+        //current steps earning is steps * 0.1
+        double stepsEarnings = steps * stepsEarningsMultiplier;
+
+        //current earnings is 0.2 coins per minute
+        double minuteEarningsEnergy = (earningsPerMinute / 60) * StopwatchManager.Instance.currentScoringTime;
+
+        //current luck earnings is luck * 0.1
+        double luckEarnings = Luck * luckEarningsMultiplier;
+
+        currentEarnings = stepsEarnings * luckEarnings + minuteEarningsEnergy;
+        if (currentEarnings >= 0.01)
+        {
+            if (currentEarnings >= currentEarningsCap)
+            {
+                currentEarnings = currentEarningsCap;
+                StopGame();
+                UIManager.Instance.StopCurrentGame();
+            }
+            for (int i = 0; i < UIManager.Instance.dailyCap.Length; i++)
+            {
+                string currentEarningString = string.Format("{0:0.00}", currentEarnings);
+                string currentEarningCapString = string.Format("{0:0.00}", currentEarningsCap);
+                UIManager.Instance.dailyCap[i].text = $"{currentEarningString} / {currentEarningCapString}";
+                UIManager.Instance.dailyCapGauge[i].fillAmount = (float)(currentEarnings / currentEarningsCap);
+            }
+            return string.Format("{0:0.00}", currentEarnings);
+        }
+        else
+        {
+            return "0.00";
+        }
+    }
+
+    private void decreaseEnergyAlgorithm()
+    {
+        currentEnergy = currentEnergyCap - (oneDividedBySixty * StopwatchManager.Instance.currentTime);
+        if (currentEnergy > 0)
+        {
+            for (int i = 0; i < UIManager.Instance.energy.Length; i++)
+            {
+                string currentEnergyString = string.Format("{0:0.0}", currentEnergy);
+                string currentEnergyCapString = string.Format("{0:0.0}", currentEnergyCap);
+                UIManager.Instance.energy[i].text = $"{currentEnergyString} / {currentEnergyCapString}";
+                UIManager.Instance.energyCapGauge[i].fillAmount = (float)(currentEnergy / currentEnergyCap);
+            }
+        }
+        if (currentEnergy < 0 && StopwatchManager.Instance.currentTimeSpan >= System.TimeSpan.FromSeconds(currentEnergyCap * 60))
+        {
+            StopGame();
+            UIManager.Instance.StopCurrentGame();
         }
     }
 

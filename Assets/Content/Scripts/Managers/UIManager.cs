@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class UIManager : Singleton<UIManager>
 {
     #region Public Variables
+    [Header("UI Versions")]
+    public int uiVersion;
     [Header("Main Pages")]
     public GameObject LoadingScene;
     public GameObject HomePage;
@@ -27,6 +29,7 @@ public class UIManager : Singleton<UIManager>
     public Image DurabilityGuage;
 
     [Header("Gameplay Page UI Contents")]
+
     public GameObject GameplayOverlay;
     public Image GameplayOverlayCountdown;
     public GameObject PauseStateContent;
@@ -42,10 +45,17 @@ public class UIManager : Singleton<UIManager>
     public TextMeshProUGUI gameplayDistance;
     public TextMeshProUGUI gameplayTime;
     public TextMeshProUGUI currentM7StepCoinEarnings;
-    public TextMeshProUGUI currentEnergy;
+    //public TextMeshProUGUI currentEnergy;
     public GameObject RunningState;
     public GameObject PauseState;
     public GameObject SummaryState;
+
+    [Header("v2")]
+    public Image[] dailyCapGauge;
+    public TextMeshProUGUI[] dailyCap;
+    public Image[] energyCapGauge;
+    public TextMeshProUGUI[] energy;
+    public TextMeshProUGUI[] energyRefill;
 
     [Header("Prefabs and other External Assets")]
     public Sprite GameplayCountdownGo;
@@ -142,8 +152,8 @@ public class UIManager : Singleton<UIManager>
         gameplaySteps.text = "0";
         gameplayDistance.text = "0";
         gameplayTime.text = "00:00";
-        currentEnergy.text = $"{GameplayManager.Instance.currentEnergy} / {GameplayManager.Instance.currentEnergy}";
-        currentM7StepCoinEarnings.text = $"+ 0.0";
+        //currentEnergy.text = $"{GameplayManager.Instance.currentEnergy} / {GameplayManager.Instance.currentEnergy}";
+        currentM7StepCoinEarnings.text = $"+ 0.00";
         StopwatchManager.Instance.ResetStopWatch();
         SetGameplayState(0);
         PauseButton.SetActive(true);
@@ -278,10 +288,31 @@ public class UIManager : Singleton<UIManager>
 
     private void setupHomeDetails()
     {
-        StageLevel.text = "1";
-        Energy.text = GameplayManager.Instance.currentEnergy.ToString();
         Durability.text = "100 / 100";
         DurabilityGuage.fillAmount = 1;
-    }
+        if(uiVersion == 2)
+        {
+            for (int i = 0; i < dailyCapGauge.Length; i++)
+            {
+                dailyCapGauge[i].fillAmount = (float)(GameplayManager.Instance.currentEarnings / GameplayManager.Instance.currentEarningsCap);
+                string currentEarnings = string.Format("{0:0.00}", GameplayManager.Instance.currentEarnings);
+                string currentEarningsCap = string.Format("{0:0.00}", GameplayManager.Instance.currentEarningsCap);
+                dailyCap[i].text = $"{currentEarnings} / {currentEarningsCap}";
+                energyCapGauge[i].fillAmount = (float)(GameplayManager.Instance.currentEnergy / GameplayManager.Instance.currentEnergyCap);
+                string currentEnergy = string.Format("{0:0.0}", GameplayManager.Instance.currentEnergy);
+                string currentEnergyCap = string.Format("{0:0.0}", GameplayManager.Instance.currentEnergyCap);
+                energy[i].text = $"{currentEnergy} / {currentEnergyCap}";
+                energyRefill[i].text = "Next Refill in 5h 16min";
+            }
+        }
+        else
+        {
+            StageLevel.text = "1";
+            Energy.text = GameplayManager.Instance.currentEnergy.ToString();
+        }
+
+
+    //public TextMeshProUGUI[] energyRefill;
+}
     #endregion
 }

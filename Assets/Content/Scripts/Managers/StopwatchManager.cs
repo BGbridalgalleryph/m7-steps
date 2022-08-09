@@ -13,16 +13,16 @@ public class StopwatchManager : Singleton<StopwatchManager>
     public float currentScoringTime;
 
     #region Delegate
-    public delegate void MinuteThreshold();
-    public event MinuteThreshold onAchievedMinuteThreshold;
+    //public delegate void MinuteThreshold();
+    //public event MinuteThreshold onAchievedMinuteThreshold;
     #endregion
 
     #endregion
 
     #region Private Variables
     private bool stopWatchEnabled = false;
-    private float minuteThresholdHandler;
-    private int minutePassed = 1;
+    //private float minuteThresholdHandler;
+    //private int minutePassed = 1;
     #endregion
 
     #region Public Functions
@@ -38,7 +38,7 @@ public class StopwatchManager : Singleton<StopwatchManager>
 
     public void ResetStopWatch()
     {
-        minutePassed = 1;
+        //minutePassed = 1;
         currentTime = 0f;
         currentScoringTime = 0f;
         currentTimeSpan = TimeSpan.Zero;
@@ -56,13 +56,14 @@ public class StopwatchManager : Singleton<StopwatchManager>
             }
             currentTime += Time.deltaTime;
             currentTimeSpan = TimeSpan.FromSeconds(currentTime);
-            minuteThresholdHandler = currentTime;
-            if (minuteThresholdHandler > (60 * minutePassed) + 1)
-            {
-                minutePassed++;
-                onAchievedMinuteThreshold();
-                minuteThresholdHandler = 0;
-            }
+            //minuteThresholdHandler = currentTime;
+            //if (minuteThresholdHandler > (60 * minutePassed) + 1)
+            //{
+            //    minutePassed++;
+            //    onAchievedMinuteThreshold();
+            //    minuteThresholdHandler = 0;
+            //}
+
         }
 
     }
